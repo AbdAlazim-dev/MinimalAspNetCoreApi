@@ -1,4 +1,5 @@
-﻿using DishesAPI.DbContexts;
+﻿using AutoMapper;
+using DishesAPI.DbContexts;
 using DishesAPI.Entities;
 using DishesAPI.Models;
 using DishesAPI.ResourseParameters;
@@ -10,11 +11,16 @@ namespace DishesAPI.Services
     public class DisheRepository : IDishRepository
     {
         private readonly DishesDbContext _context;
+        private readonly IMapper _mapper;
 
-        public DisheRepository(DishesDbContext context) 
+        public DisheRepository(DishesDbContext context, IMapper mapper) 
         {
             _context = context;
+            _mapper = mapper;
         }
+
+
+
         public async Task<IEnumerable<Entities.Dish>> GetAllAsync()
         {
             return await _context.Dishes.ToListAsync();
@@ -46,10 +52,28 @@ namespace DishesAPI.Services
         {
             return await _context.Dishes.Where(d => d.Id == dishId).FirstOrDefaultAsync();
         }
-        //public async Task<Dish> GitDishIngredient(Guid dishId)
-        //{
-        //    var ingredient = await _context.Dishes.Include(d => d.Ingredients)
-        //        .FirstOrDefaultAsync(d => d.Id == dishId))?.Ingredients);
-        //}
+
+        public void AddDishe(Dish dish)
+        {
+            var dishToReturn = _context.Dishes.Add(dish);
+        }
+
+        public void DeleteDishe(Dish dish)
+        {
+            _context.Dishes.Remove(dish);
+        }
+        public async Task<bool> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync() > 0;
+        }
+        public async Task<bool> DisheExistAsync(Guid dishId)
+        {
+            if(dishId == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(dishId));
+            }
+
+            return await _context.Dishes.AnyAsync(d => d.Id == dishId);
+        }
     }
 }

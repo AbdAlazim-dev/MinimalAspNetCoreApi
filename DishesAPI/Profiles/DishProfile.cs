@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DishesAPI.Models;
 
 namespace DishesAPI.Profiles
 {
@@ -7,7 +8,8 @@ namespace DishesAPI.Profiles
         public DishProfile() 
         {
             CreateMap<Entities.Dish, Models.DisheDto>();
-            
+            CreateMap<Models.DisheDto, Entities.Dish>();
+            CreateMap<DishForCreationDto, Entities.Dish>();
         }
     }
 }
