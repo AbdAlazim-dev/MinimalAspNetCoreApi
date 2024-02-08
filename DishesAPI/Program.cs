@@ -40,8 +40,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+//define Map Groups
+var dishesEndpoint = app.MapGroup("/dishes");
+var dishWithGuidId = dishesEndpoint.MapGroup("/{disheId:guid}");
+var ingredientEndPoint = dishWithGuidId.MapGroup("ingredients");
 
-app.MapGet("/dishes", async  Task<Ok<IEnumerable<DisheDto>>>(
+
+dishesEndpoint.MapGet("", async  Task<Ok<IEnumerable<DisheDto>>>(
     IDishRepository repository,
     IMapper mapper) =>
 {
@@ -49,7 +54,7 @@ app.MapGet("/dishes", async  Task<Ok<IEnumerable<DisheDto>>>(
     return TypedResults.Ok(mapper.Map<IEnumerable<DisheDto>>(await repository.GetAllAsync()));
 });
 
-app.MapGet("dishes/{disheId}", async Task<Results<NotFound, Ok<DisheDto>>> (IDishRepository repository,
+dishWithGuidId.MapGet("", async Task<Results<NotFound, Ok<DisheDto>>> (IDishRepository repository,
     IMapper mapper,
     Guid disheId) =>
 {
@@ -64,7 +69,7 @@ app.MapGet("dishes/{disheId}", async Task<Results<NotFound, Ok<DisheDto>>> (IDis
 }).WithName("GetDishe");
 
 
-app.MapGet("/dishes/{disheId}/ingredients", async (DishesDbContext context,
+ingredientEndPoint.MapGet("", async (DishesDbContext context,
     IMapper mapper,
     Guid disheId) =>
 {
@@ -75,7 +80,7 @@ app.MapGet("/dishes/{disheId}/ingredients", async (DishesDbContext context,
 
 
 // Add dishe route
-app.MapPost("/dishes", async (IDishRepository dishRepository,
+dishesEndpoint.MapPost("", async (IDishRepository dishRepository,
     IMapper mapper,
     DishForCreationDto dish) =>
 {
@@ -97,11 +102,11 @@ app.MapPost("/dishes", async (IDishRepository dishRepository,
 
     var dishToReturn = mapper.Map<DisheDto>(dishEntity);
 
-    return Results.CreatedAtRoute( "GetDishe", new { disheId = dishEntity.Id}, dishToReturn);
+    return Results.CreatedAtRoute("GetDishe", new { disheId = dishEntity.Id}, dishToReturn);
 });
 
 //Update a Dishe
-app.MapPut("/dishes/{dishId}", async (
+dishWithGuidId.MapPut("", async (
     IDishRepository dishRepository,
     IMapper mapper,
     Guid dishId,
@@ -129,7 +134,7 @@ app.MapPut("/dishes/{dishId}", async (
     return Results.Ok(mapper.Map<DisheDto>(dishEntity));
 });
 //Delete a Dishe
-app.MapDelete("/dishes/{dishId}", async (
+dishWithGuidId.MapDelete("", async (
     IDishRepository dishRerpository,
     Guid dishId) =>
 {
