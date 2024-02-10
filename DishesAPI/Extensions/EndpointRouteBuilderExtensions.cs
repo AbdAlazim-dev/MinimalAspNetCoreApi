@@ -18,15 +18,23 @@ public static class EndpointRouteBuilderExtensions
     {
         var dishesEndpoint = app.MapGroup("/dishes");
         var dishWithGuidId = dishesEndpoint.MapGroup("/{disheId:guid}");
+        var dishWithGuidIdWithEndpointLockFilters = dishWithGuidId.MapGroup("")
+            .AddEndpointFilter(new DishLockedForUpdateAndDelete(new List<Guid>()
+            {
+                //The guid of the dishes that cant be updated or deleted
+                new Guid("eacc5169-b2a7-41ad-92c3-dbb1a5e7af06"),
+                new Guid("98929bd4-f099-41eb-a994-f1918b724b5a")
+            }));
 
         dishesEndpoint.MapGet("", DishesEndpointHandlers.GetAllDishesEndpoint);
         dishesEndpoint.MapGet("/{disheId}", DishesEndpointHandlers.GetDishByIdEndpint).WithName("GetDishe");
 
         dishesEndpoint.MapPost("", DishesEndpointHandlers.AddDishEndpoint);
-        dishWithGuidId.MapPut("", DishesEndpointHandlers.UpdateDishEndpoint)
-            .AddEndpointFilter<DishLockedForUpdateAndDelete>();
+        dishWithGuidIdWithEndpointLockFilters.MapPut("", DishesEndpointHandlers.UpdateDishEndpoint);
 
-        dishWithGuidId.MapDelete("", DishesEndpointHandlers.DeleteDishEndpoint)
+
+
+        dishWithGuidIdWithEndpointLockFilters.MapDelete("", DishesEndpointHandlers.DeleteDishEndpoint)
             .AddEndpointFilter<DishLockedForUpdateAndDelete>();
     }
     public static void RigesterAllIngredientEndpoint(this IEndpointRouteBuilder app)

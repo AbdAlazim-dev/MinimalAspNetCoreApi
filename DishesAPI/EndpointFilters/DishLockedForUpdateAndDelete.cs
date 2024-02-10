@@ -6,6 +6,11 @@ namespace DishesAPI.EndpointFilters
 {
     public class DishLockedForUpdateAndDelete : IEndpointFilter
     {
+        private readonly IEnumerable<Guid> _ids;
+        public DishLockedForUpdateAndDelete(IEnumerable<Guid> ids)
+        {
+            _ids = ids;
+        }
         public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context,
             EndpointFilterDelegate next)
         {
@@ -22,15 +27,17 @@ namespace DishesAPI.EndpointFilters
                 methodVerb = "Delete";
             }
             var secondDishId = new Guid("eacc5169-b2a7-41ad-92c3-dbb1a5e7af06");
-
-            if (secondDishId == requestDishToEdit)
+            foreach(Guid id in _ids)
             {
-                return TypedResults.Problem(new()
+                if (id == requestDishToEdit)
                 {
-                    Status = 400,
-                    Title = "this dish is perfect and cant be "+ methodVerb,
-                    Detail = "you can not "+ methodVerb +" perfection"
-                });
+                    return TypedResults.Problem(new()
+                    {
+                        Status = 400,
+                        Title = "this dish is perfect and cant be "+ methodVerb,
+                        Detail = "you can not "+ methodVerb +" perfection"
+                    });
+                }
             }
             var result = await next.Invoke(context);
 
