@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using MiniValidation;
+using System.Net;
 using System.Reflection;
 using System.Security.Claims;
 
@@ -30,6 +31,8 @@ builder.Services.AddScoped<IDishRepository, DisheRepository>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -37,7 +40,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
+else
+{
+    app.UseExceptionHandler();
+}
+
 
 app.UseHttpsRedirection();
 

@@ -31,6 +31,11 @@ public static class EndpointRouteBuilderExtensions
 
         ingredientEndPoint.MapGet("", DishesEndpointHandlers.GetDishIngredientEndpoint);
 
+        ingredientEndPoint.MapPost("", () =>
+        {
+            throw new NotImplementedException();
+        });
+
     }
 }
 

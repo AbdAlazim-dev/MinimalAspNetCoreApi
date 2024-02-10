@@ -1,6 +1,6 @@
-@DishesAPI_HostAddress = http://localhost:5232
+@DishesAPI_HostAddress = http://localhost:4001
 
-GET {{DishesAPI_HostAddress}}/weatherforecast/
+GET {{DishesAPI_HostAddress}}/dishes/98929bd4-f099-41eb-a994-f1918b724b5a/
 Accept: application/json
 
 ###
