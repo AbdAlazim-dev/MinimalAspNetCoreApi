@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DishesAPI.DbContexts;
+using DishesAPI.EndpointFilters;
 using DishesAPI.EndpointHandlers;
 using DishesAPI.Entities;
 using DishesAPI.Models;
@@ -22,8 +23,11 @@ public static class EndpointRouteBuilderExtensions
         dishesEndpoint.MapGet("/{disheId}", DishesEndpointHandlers.GetDishByIdEndpint).WithName("GetDishe");
 
         dishesEndpoint.MapPost("", DishesEndpointHandlers.AddDishEndpoint);
-        dishWithGuidId.MapPut("", DishesEndpointHandlers.UpdateDishEndpoint);
-        dishWithGuidId.MapDelete("", DishesEndpointHandlers.DeleteDishEndpoint);
+        dishWithGuidId.MapPut("", DishesEndpointHandlers.UpdateDishEndpoint)
+            .AddEndpointFilter<DishLockedForUpdateAndDelete>();
+
+        dishWithGuidId.MapDelete("", DishesEndpointHandlers.DeleteDishEndpoint)
+            .AddEndpointFilter<DishLockedForUpdateAndDelete>();
     }
     public static void RigesterAllIngredientEndpoint(this IEndpointRouteBuilder app)
     {
