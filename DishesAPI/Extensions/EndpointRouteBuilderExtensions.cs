@@ -29,13 +29,15 @@ public static class EndpointRouteBuilderExtensions
         dishesEndpoint.MapGet("", DishesEndpointHandlers.GetAllDishesEndpoint);
         dishesEndpoint.MapGet("/{disheId}", DishesEndpointHandlers.GetDishByIdEndpint).WithName("GetDishe");
 
-        dishesEndpoint.MapPost("", DishesEndpointHandlers.AddDishEndpoint);
+        dishesEndpoint.MapPost("", DishesEndpointHandlers.AddDishEndpoint)
+            .AddEndpointFilter<DishMustBeMoreThenThreeChar>();
         dishWithGuidIdWithEndpointLockFilters.MapPut("", DishesEndpointHandlers.UpdateDishEndpoint);
+            
 
 
 
         dishWithGuidIdWithEndpointLockFilters.MapDelete("", DishesEndpointHandlers.DeleteDishEndpoint)
-            .AddEndpointFilter<DishLockedForUpdateAndDelete>();
+            .AddEndpointFilter<LogNotFoundResponseFilter>();
     }
     public static void RigesterAllIngredientEndpoint(this IEndpointRouteBuilder app)
     {
