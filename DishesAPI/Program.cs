@@ -29,6 +29,16 @@ builder.Services.AddDbContext<DishesDbContext>(options =>
 });
 builder.Services.AddScoped<IDishRepository, DisheRepository>();
 
+builder.Services.AddAuthentication().AddJwtBearer();
+builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("MustBeFromSudan", policy =>
+    {
+        policy.RequireRole("admin");
+        policy.RequireClaim("country", "sudan");
+    });
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddProblemDetails();
@@ -51,6 +61,9 @@ else
 app.UseHttpsRedirection();
 
 // Reigster all the endpoints
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.RigesterAllDishesEndpoint();
 app.RigesterAllIngredientEndpoint();

@@ -7,16 +7,20 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniValidation;
+using System.Security.Claims;
 
 namespace DishesAPI.EndpointHandlers
 {
     public class DishesEndpointHandlers
     {
+
         public async static Task<Ok<IEnumerable<DisheDto>>> GetAllDishesEndpoint(
         IDishRepository repository,
+        ClaimsPrincipal principal,
         IMapper mapper)
         {
-
+            Console.WriteLine($"is this user authinticated ? {principal.Identity?.IsAuthenticated};" +
+                $" and his name is {principal.FindFirst("name")?.Value}");
             return TypedResults.Ok(mapper.Map<IEnumerable<DisheDto>>(await repository.GetAllAsync()));
         }
         public async static Task<Results<NotFound, Ok<DisheDto>>> GetDishByIdEndpint(IDishRepository repository,
@@ -86,9 +90,12 @@ namespace DishesAPI.EndpointHandlers
         }
         public static async Task<Results<NotFound, NoContent>> DeleteDishEndpoint
         (IDishRepository repository,
-            Guid disheId
+            Guid disheId,
+            ClaimsPrincipal claimsPrinciple
             )
         {
+            Console.WriteLine($"this user is from :{claimsPrinciple.FindFirst("country")?.Value} " +
+                $"and his is an : {claimsPrinciple.IsInRole}");
             var dishEntity = await repository.GetDishByIdAsync(disheId);
             if (dishEntity == null)
             {

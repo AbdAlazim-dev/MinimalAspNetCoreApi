@@ -16,7 +16,8 @@ public static class EndpointRouteBuilderExtensions
 {
     public static void RigesterAllDishesEndpoint(this IEndpointRouteBuilder app)
     {
-        var dishesEndpoint = app.MapGroup("/dishes");
+        var dishesEndpoint = app.MapGroup("/dishes")
+            .RequireAuthorization();
         var dishWithGuidId = dishesEndpoint.MapGroup("/{disheId:guid}");
         var dishWithGuidIdWithEndpointLockFilters = dishWithGuidId.MapGroup("")
             .AddEndpointFilter(new DishLockedForUpdateAndDelete(new List<Guid>()
@@ -24,10 +25,11 @@ public static class EndpointRouteBuilderExtensions
                 //The guid of the dishes that cant be updated or deleted
                 new Guid("eacc5169-b2a7-41ad-92c3-dbb1a5e7af06"),
                 new Guid("98929bd4-f099-41eb-a994-f1918b724b5a")
-            }));
+            })).RequireAuthorization("MustBeFromSudan");
 
         dishesEndpoint.MapGet("", DishesEndpointHandlers.GetAllDishesEndpoint);
-        dishesEndpoint.MapGet("/{disheId}", DishesEndpointHandlers.GetDishByIdEndpint).WithName("GetDishe");
+        dishesEndpoint.MapGet("/{disheId}", DishesEndpointHandlers.GetDishByIdEndpint)
+            .WithName("GetDishe");
 
         dishesEndpoint.MapPost("", DishesEndpointHandlers.AddDishEndpoint)
             .AddEndpointFilter<DishMustBeMoreThenThreeChar>();
@@ -41,7 +43,7 @@ public static class EndpointRouteBuilderExtensions
     }
     public static void RigesterAllIngredientEndpoint(this IEndpointRouteBuilder app)
     {
-        var ingredientEndPoint = app.MapGroup("/dishes/{disheId:guid}/ingredients");
+        var ingredientEndPoint = app.MapGroup("/dishes/{disheId:guid}/ingredients").RequireAuthorization();
 
         ingredientEndPoint.MapGet("", DishesEndpointHandlers.GetDishIngredientEndpoint);
 
