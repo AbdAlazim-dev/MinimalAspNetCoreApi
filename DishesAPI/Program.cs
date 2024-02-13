@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 using MiniValidation;
 using System.Net;
 using System.Reflection;
@@ -21,7 +22,31 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(setupAction =>
+{
+    setupAction.AddSecurityDefinition("BasicTokenAuthentication",
+        new()
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            Description = "provide a token to get access to all endpoint",
+            In = ParameterLocation.Header
+        });
+    setupAction.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "BasicTokenAuthentication"
+                }
+            },
+            new List<string>()
+        }
+    });
+});
 
 builder.Services.AddDbContext<DishesDbContext>(options =>
 {
